@@ -47,13 +47,7 @@ st.markdown("""
         font-weight: 600;
         margin-bottom: 1rem;
     }
-    div[data-testid="stMetric"] {
-        background: white;
-        border-radius: 10px;
-        padding: 1rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-        color: #0D1B3E !important;
-    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -247,11 +241,22 @@ best_mae = min(
 st.markdown(f"### Results for {ticker}  ({start_date} to {end_date})")
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Trading Days",        f"{len(trading_x)}")
-c2.metric("Weekends Estimated",  f"{len(weekend_x)}")
-c3.metric("Latest Closing Price", f"{trading_y[-1]:.2f}")
-c4.metric("Best Method", best_mae[0])
-st.caption(f"Best MAE: {best_mae[1]:.4f}")
+
+def summary_card(col, label, value, sub=None):
+    sub_html = f'<div style="font-size:0.78rem;color:#64748B;margin-top:0.2rem;">{sub}</div>' if sub else ""
+    col.markdown(f"""
+    <div style="background:white;border-radius:10px;padding:1.2rem 1.4rem;
+                box-shadow:0 1px 4px rgba(0,0,0,0.08);min-height:90px;">
+        <div style="font-size:0.78rem;color:#64748B;margin-bottom:0.3rem;">{label}</div>
+        <div style="font-size:1.7rem;font-weight:700;color:#0D1B3E;">{value}</div>
+        {sub_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+summary_card(c1, "Trading Days",        f"{len(trading_x)}")
+summary_card(c2, "Weekends Estimated",  f"{len(weekend_x)}")
+summary_card(c3, "Latest Closing Price",f"{trading_y[-1]:.2f}")
+summary_card(c4, "Best Method",         best_mae[0], sub=f"MAE = {best_mae[1]:.4f}")
 
 st.markdown("---")
 
