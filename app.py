@@ -444,15 +444,3 @@ st.markdown(
 )
 result_df = pd.DataFrame(rows)
 st.dataframe(result_df, use_container_width=True, height=300)
-
-# ─────────────────────────────────────────────
-# Footer
-# ─────────────────────────────────────────────
-st.markdown("---")
-st.markdown(
-    "<center><small>"
-    "MC#3 Interpolation &nbsp;|&nbsp; Numerical Methods &nbsp;|&nbsp;"
-    " Apiphu Kansuwan &nbsp;&amp;&nbsp; Kanokphat Pumhuairob"
-    "</small></center>",
-    unsafe_allow_html=True,
-)
