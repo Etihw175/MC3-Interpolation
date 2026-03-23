@@ -204,28 +204,37 @@ for wx in weekend_x:
 # ─────────────────────────────────────────────
 # Calculate MAE
 # ─────────────────────────────────────────────
+# MAE: Leave-One-Out on actual trading days
+# Remove one Friday or Monday, predict it, compare to real price
 test_rows = []
-for i in range(len(trading_x) - 1):
-    x0, x1 = trading_x[i], trading_x[i + 1]
-    y0, y1 = trading_y[i], trading_y[i + 1]
-    if x1 - x0 > 1:
-        for gap_x in range(x0 + 1, x1):
-            if all_dates[gap_x].weekday() >= 5:
-                y_ref  = y0 + (y1 - y0) * (gap_x - x0) / (x1 - x0)
-                left   = [j for j in trading_x if j <  gap_x][-window:]
-                right  = [j for j in trading_x if j >= gap_x][:window]
-                near   = left + right
-                near_y = [trading_y[trading_x.index(j)] for j in near]
-                y_lin  = linear_interp(trading_x, trading_y, gap_x)
-                y_lag  = lagrange_interp(near, near_y, gap_x)
-                coef_local = newton_divided_diff(near, near_y)
-                y_nwt  = newton_interp(coef_local, near, gap_x)
-                if y_lin:
-                    test_rows.append({
-                        "AE_Linear":   abs(y_lin - y_ref),
-                        "AE_Lagrange": abs(y_lag - y_ref),
-                        "AE_Newton":   abs(y_nwt - y_ref),
-                    })
+for i in range(2, len(trading_x) - 2):
+    # Only test on Fridays (last day before weekend)
+    actual_date = all_dates[trading_x[i]]
+    if actual_date.weekday() != 4:   # 4 = Friday
+        continue
+
+    target_x = trading_x[i]
+    y_true   = trading_y[i]
+
+    # Build window WITHOUT the target point
+    left_pool  = trading_x[:i]
+    right_pool = trading_x[i+1:]
+    left   = left_pool[-window:]
+    right  = right_pool[:window]
+    near   = left + right
+    near_y = [trading_y[trading_x.index(j)] for j in near]
+
+    y_lin = linear_interp(near, near_y, target_x)
+    y_lag = lagrange_interp(near, near_y, target_x)
+    coef_local = newton_divided_diff(near, near_y)
+    y_nwt = newton_interp(coef_local, near, target_x)
+
+    if y_lin:
+        test_rows.append({
+            "AE_Linear":   abs(y_lin - y_true),
+            "AE_Lagrange": abs(y_lag - y_true),
+            "AE_Newton":   abs(y_nwt - y_true),
+        })
 
 test_df  = pd.DataFrame(test_rows)
 mae_lin  = test_df["AE_Linear"].mean()
@@ -245,8 +254,8 @@ c1, c2, c3, c4 = st.columns(4)
 c1.metric("Trading Days",        f"{len(trading_x)}")
 c2.metric("Weekends Estimated",  f"{len(weekend_x)}")
 c3.metric("Latest Closing Price", f"{trading_y[-1]:.2f}")
-c4.metric("Best Method",          best_mae[0],
-          delta=f"MAE = {best_mae[1]:.4f}", delta_color="inverse")
+c4.metric("Best Method", best_mae[0])
+st.caption(f"Best MAE: {best_mae[1]:.4f}")
 
 st.markdown("---")
 
