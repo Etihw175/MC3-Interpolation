@@ -52,6 +52,7 @@ st.markdown("""
         border-radius: 10px;
         padding: 1rem;
         box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        color: #0D1B3E !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -134,11 +135,6 @@ with st.sidebar:
     st.markdown("**Suggested tickers**")
     st.markdown("US:  `AAPL`  `TSLA`  `GOOGL`  `MSFT`")
     st.markdown("TH:  `PTT.BK`  `CPALL.BK`  `AOT.BK`")
-    st.markdown("---")
-    st.markdown("**MC#3 — Interpolation**")
-    st.markdown("Numerical Methods · Burapha University")
-    st.markdown("Apiphu Kansuwan")
-    st.markdown("Kanokphat Pumhuairob")
 
 # ─────────────────────────────────────────────
 # Guard
